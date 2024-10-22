@@ -1,115 +1,66 @@
-import React, { useRef, useEffect, useState } from "react";
-import mapboxgl from "mapbox-gl";
+import React, { useState } from "react";
 import "mapbox-gl/dist/mapbox-gl.css";
-import pin from "../../assets/MemoryMap/pin.svg";
-import { motion } from "framer-motion";
+import LiquidMorphToggle from "./LiquidMorphToggle";
+import MapContainer from "./MapContainer";
+import AddPinButton from "./AddPinButton";
+import CitySelectionModal from "./CitySelectionModal";
 
-mapboxgl.accessToken =
-  "pk.eyJ1IjoibmFnb2plIiwiYSI6ImNtMmQzNDVzdzBpZHUya3M3OTNxdjhwN2YifQ.svkFa3kKIzHmZ9GX0_p2fg";
+const initialLocations = [
+  { lng: -74.006, lat: 40.7128, city: "New York" }, // New York
+  { lng: 72.8777, lat: 19.076, city: "Mumbai" }, // Mumbai
+  { lng: -79.3832, lat: 43.6532, city: "Toronto" }, // Toronto
+  { lng: -81.5158, lat: 27.6648, city: "Florida" }, // Florida
+  { lng: 2.3522, lat: 48.8566, city: "Paris" }, // Paris
+];
 
 const MapboxMapComp = () => {
-  const mapContainerRef = useRef(null);
-  const dragConstraintsRef = useRef(null);
-  const mapRef = useRef(null);
+  const [isGlobeView, setIsGlobeView] = useState(false);
+  const [locations, setLocations] = useState(initialLocations);
+  const [centerOnLocation, setCenterOnLocation] = useState(null); // Track location to center on
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // State to hold the current location info (city, country)
-  const [currentLocation, setCurrentLocation] = useState({
-    city: "",
-    country: "",
-  });
-  const [isDragging, setIsDragging] = useState(false); // State to manage drag state
-
-  useEffect(() => {
-    // Initialize the Mapbox map with zoom and scroll interactions disabled
-    const map = new mapboxgl.Map({
-      container: mapContainerRef.current,
-      style: "mapbox://styles/nagoje/cm2d8efs600yt01r23qdibqrk", // You can change the style if you prefer
-      center: [13, 30], // Center on the world
-      zoom: 0.03, // Zoom out to see all continents
-      interactive: false, // Disable all interactions (zoom, drag, etc.)
-      attributionControl: false,
-      projection: "mercator",
-    });
-
-    mapRef.current = map;
-
-    // Add country borders layer
-    map.on("load", () => {
-      // Add a line layer for country borders
-      map.addLayer({
-        id: "country-borders",
-        type: "line",
-        source: {
-          type: "vector",
-          url: "mapbox://mapbox.mapbox-streets-v8", // Use Mapbox's street vector data
-        },
-        "source-layer": "admin", // Administrative boundaries
-        paint: {
-          "line-color": "#191817", // White border color (adjust as needed)
-          "line-width": 0.5, // Adjust border width for visibility
-        },
-        filter: ["==", "admin_level", 0], // Filter for country borders (admin level 0)
-      });
-    });
-
-    return () => map.remove(); // Cleanup map when component unmounts
-  }, []);
-
-  const handleDrag = (event, info) => {
-    if (mapRef.current) {
-      // Convert the screen coordinates to geographical coordinates (lng, lat)
-      const { x, y } = info.point; // Get the screen coordinates from drag
-      const lngLat = mapRef.current.unproject([x, y]); // Convert to geographic coordinates
-      setCurrentLocation({ lng: lngLat.lng, lat: lngLat.lat }); // Update the location state
-      console.log(lngLat);
+  // Function to add a new location pin and center on it if in globe view
+  const handleAddLocation = (city) => {
+    const [lng, lat] = city.center;
+    const newLocation = { lng, lat, city: city.city, country: city.country }; // Include country
+    setLocations((prevLocations) => [...prevLocations, newLocation]);
+    if (isGlobeView) {
+      setCenterOnLocation({ lng, lat }); // Center on the new pin if in globe view
     }
+  };
+
+  // Function to handle the map projection transition
+  const handleMapTransition = () => {
+    setIsGlobeView(!isGlobeView);
   };
 
   return (
     <div className="w-screen h-screen flex justify-center items-center overflow-hidden">
-      <div className="w-[48%] h-[63%]  flex items-center justify-center bg-map-background  rounded-3xl">
-        <div className="relative w-[83%] h-[100%]  " ref={dragConstraintsRef}>
-          {/* Mapbox GL container */}
-          <div
-            ref={mapContainerRef}
-            className="absolute inset-0 w-full h-full"
+      <div className="w-[50%] h-[75%] flex flex-col items-center justify-center bg-map-background rounded-3xl relative overflow-hidden">
+        {/* Map Container */}
+        <MapContainer
+          isGlobeView={isGlobeView}
+          locations={locations}
+          centerOnLocation={centerOnLocation}
+        />
+
+        {/* Add Pin Button */}
+        <AddPinButton onClick={() => setIsModalOpen(true)} />
+
+        {/* City Selection Modal */}
+        {isModalOpen && (
+          <CitySelectionModal
+            onClose={() => setIsModalOpen(false)}
+            onSelectCity={handleAddLocation}
           />
+        )}
 
-          {/* Randomly Placed Pins */}
-          <div className="absolute top-[30%] left-[40%]">
-            <img src={pin} alt="Pin" className="w-6 h-6" />
-          </div>
-          <div className="absolute top-[50%] left-[20%]">
-            <img src={pin} alt="Pin" className="w-6 h-6" />
-          </div>
-          <div className="absolute top-[70%] left-[60%]">
-            <img src={pin} alt="Pin" className="w-6 h-6" />
-          </div>
-          <div className="absolute top-[25%] left-[70%]">
-            <img src={pin} alt="Pin" className="w-6 h-6" />
-          </div>
-
-          {/* Draggable Pin (Static for now) */}
-
-          <div className="absolute bottom-4 -left-6 flex items-center">
-            <motion.div
-              className={`cursor-pointer ${
-                isDragging
-                  ? "scale-125 drop-shadow-[0_0_10px_rgba(255,255,255,0.6)]"
-                  : ""
-              }`}
-              drag
-              dragConstraints={dragConstraintsRef}
-              dragMomentum={false}
-              onDrag={handleDrag}
-              onDragStart={() => setIsDragging(true)}
-              onDragEnd={() => setIsDragging(false)}
-              style={{ touchAction: "none" }}
-            >
-              <img src={pin} alt="Draggable Pin" className="w-8 h-8" />{" "}
-            </motion.div>
-            <span className="text-white ml-2">Drop a pin</span>
-          </div>
+        {/* Liquid Morph Toggle */}
+        <div className="absolute top-2 flex items-center space-x-4">
+          <LiquidMorphToggle
+            isGlobeView={isGlobeView}
+            setIsGlobeView={handleMapTransition}
+          />
         </div>
       </div>
     </div>

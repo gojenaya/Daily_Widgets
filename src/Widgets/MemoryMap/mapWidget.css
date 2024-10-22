@@ -1,0 +1,21 @@
+.custom-popup .mapboxgl-popup-content {
+  background-color: rgba(
+    255,
+    255,
+    255,
+    0.6
+  ); /* Light background with 60% opacity */
+  border-radius: 20px; /* Fully rounded */
+  padding: 1rem; /* Adjust padding */
+  color: #333; /* Adjust text color */
+  font-size: 04px; /* Adjust text size */
+  border: none; /* Remove border */
+}
+
+.custom-popup .mapboxgl-popup-close-button {
+  display: none; /* Hide the close button */
+}
+
+.custom-popup .mapboxgl-popup-tip {
+  display: none; /* Remove the triangle pointer */
+}

@@ -1,4 +1,6 @@
 @import "mapbox-gl/dist/mapbox-gl.css";
+@import "leaflet/dist/leaflet.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -20,4 +22,42 @@
 
 .mapboxgl-ctrl-logo {
   display: none !important;
+}
+
+/* Custom Scrollbar for WebKit browsers (Chrome, Safari) */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #e5e7eb; /* Light grey track */
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #a0aec0; /* Grey scrollbar handle */
+  border-radius: 10px;
+  border: 2px solid #e5e7eb; /* Adds a light grey border for a classy look */
+}
+
+.custom-popup .mapboxgl-popup-content {
+  background-color: rgba(
+    255,
+    255,
+    255,
+    0.6
+  ); /* Light background with 60% opacity */
+  border-radius: 20px; /* Fully rounded */
+  padding: 8px 12px; /* Adjust padding */
+  color: #333; /* Adjust text color */
+  font-size: 14px; /* Adjust text size */
+  border: none; /* Remove border */
+}
+
+.custom-popup .mapboxgl-popup-close-button {
+  display: none; /* Hide the close button */
+}
+
+.custom-popup .mapboxgl-popup-tip {
+  display: none; /* Remove the triangle pointer */
 }
