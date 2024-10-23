@@ -6,13 +6,13 @@
 @tailwind utilities;
 
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: #fff;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -40,24 +40,19 @@
   border: 2px solid #e5e7eb; /* Adds a light grey border for a classy look */
 }
 
-.custom-popup .mapboxgl-popup-content {
-  background-color: rgba(
-    255,
-    255,
-    255,
-    0.6
-  ); /* Light background with 60% opacity */
-  border-radius: 20px; /* Fully rounded */
-  padding: 8px 12px; /* Adjust padding */
-  color: #333; /* Adjust text color */
-  font-size: 14px; /* Adjust text size */
-  border: none; /* Remove border */
+/* Apply the custom cursor globally for the entire app */
+body,
+html {
+  cursor: url("./assets/MemoryMap/Arrow.svg"), auto; /* Replace with your custom cursor */
 }
 
-.custom-popup .mapboxgl-popup-close-button {
-  display: none; /* Hide the close button */
+/* For markers or any specific elements (if needed) */
+.custom-marker {
+  cursor: url("./assets/MemoryMap/Arrow.svg"), auto; /* Replace with your custom cursor */
 }
 
-.custom-popup .mapboxgl-popup-tip {
-  display: none; /* Remove the triangle pointer */
+/* Optionally for other specific elements like buttons or links */
+button,
+a {
+  cursor: url("./assets/MemoryMap/Arrow.svg"), auto; /* Replace with your custom cursor */
 }

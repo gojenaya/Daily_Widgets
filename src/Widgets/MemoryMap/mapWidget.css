@@ -3,13 +3,19 @@
     255,
     255,
     255,
-    0.6
+    0.7
   ); /* Light background with 60% opacity */
   border-radius: 20px; /* Fully rounded */
-  padding: 1rem; /* Adjust padding */
-  color: #333; /* Adjust text color */
-  font-size: 04px; /* Adjust text size */
+  padding: 0.5rem 1rem; /* Adjust padding */
+  color: #1a1a1a; /* Adjust text color */
+  font-size: 14px; /* Adjust text size */
   border: none; /* Remove border */
+  opacity: 1;
+  transition: opacity 3s ease-in-out; /* Smooth transition for fade-out */
+}
+
+.custom-popup.fade-out .mapboxgl-popup-content {
+  opacity: 0; /* Fade out */
 }
 
 .custom-popup .mapboxgl-popup-close-button {
@@ -18,4 +24,41 @@
 
 .custom-popup .mapboxgl-popup-tip {
   display: none; /* Remove the triangle pointer */
+}
+
+/* Default styles for larger screens */
+.map-widget-container {
+  width: 50%;
+  height: 75%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #1a1a1a; /* Adjust based on your map background */
+  border-radius: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Responsive adjustments for tablets and smaller screens */
+@media (max-width: 1024px) {
+  .map-widget-container {
+    width: 80%; /* Adjust width for tablet screens */
+    height: 70%; /* Adjust height for tablet screens */
+  }
+}
+
+@media (max-width: 768px) {
+  .map-widget-container {
+    width: 90%; /* Increase width on smaller devices */
+    height: 40%; /* Adjust height for smaller devices */
+  }
+}
+
+@media (max-width: 480px) {
+  .map-widget-container {
+    width: 100%; /* Full width for mobile screens */
+    height: 60%; /* Adjust height for mobile screens */
+    border-radius: 1rem; /* Smaller radius on mobile */
+  }
 }

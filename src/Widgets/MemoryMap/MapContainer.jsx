@@ -1,21 +1,25 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import "./mapWidget.css";
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoibmFnb2plIiwiYSI6ImNtMmQzNDVzdzBpZHUya3M3OTNxdjhwN2YifQ.svkFa3kKIzHmZ9GX0_p2fg";
 
-const MapContainer = ({ isGlobeView, locations, centerOnLocation }) => {
+const MapContainer = ({
+  isGlobeView,
+  locations,
+  centerOnLocation,
+  isUserAdded,
+}) => {
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
-  const [activeMarker, setActiveMarker] = useState(null); // Track the currently added marker
 
   useEffect(() => {
     if (!mapContainerRef.current) return;
 
     // Map settings based on the selected projection
     const mapSettings = isGlobeView
-      ? { center: [60, 20], zoom: 1.2 }
+      ? { center: [60, 20], zoom: 1 }
       : { center: [0, 40], zoom: 0.04 };
 
     // Initialize the Mapbox map only once
@@ -56,7 +60,7 @@ const MapContainer = ({ isGlobeView, locations, centerOnLocation }) => {
       markers.forEach((marker) => marker.remove());
 
       // Add new markers for the specified locations
-      locations.forEach((location, index) => {
+      locations.forEach((location) => {
         const markerElement = document.createElement("div");
         markerElement.className = "custom-marker";
         markerElement.style.width = "5px"; // Normal dot width
@@ -73,30 +77,56 @@ const MapContainer = ({ isGlobeView, locations, centerOnLocation }) => {
           .setLngLat([location.lng, location.lat])
           .addTo(map);
 
-        // Show the custom popup bubble and animate the marker when it is first added
-        if (index === locations.length - 1) {
+        // Only show the popup and enlarge pin if the pin was added by the user
+        if (isUserAdded && location === locations[locations.length - 1]) {
           const popup = new mapboxgl.Popup({
             closeButton: false,
             closeOnClick: false,
-            className: "custom-popup", // Custom class to style the bubble
+            className: "custom-popup fade-out", // Custom class to style the bubble with fade-out effect
           })
             .setLngLat([location.lng, location.lat])
-            .setHTML(`<p>${location.city}, ${location.country}</p>`)
+            .setHTML(`<p>${location.city}, ${location.country}</p>`) // Display only city and country
             .addTo(map);
-
-          setActiveMarker(marker);
 
           // Animate the marker to enlarge temporarily
           markerElement.style.width = "12px"; // Larger dot width
           markerElement.style.height = "12px"; // Larger dot height
 
-          // After 3 seconds, shrink the marker and remove the popup
+          // After 3 seconds, shrink the marker and let the popup fade out
           setTimeout(() => {
             markerElement.style.width = "5px"; // Return to normal size
             markerElement.style.height = "5px";
-            popup.remove(); // Hide the bubble
           }, 3000);
         }
+
+        // Add hover effect for the marker to enlarge and show the popup on hover
+        let hoverPopup = null;
+        markerElement.addEventListener("mouseenter", () => {
+          markerElement.style.width = "12px"; // Enlarge on hover
+          markerElement.style.height = "12px";
+          markerElement.style.boxShadow = "0 0 10px rgba(255, 87, 51, 0.8)"; // Add glow
+
+          hoverPopup = new mapboxgl.Popup({
+            closeButton: false,
+            closeOnClick: false,
+            className: "custom-popup", // Custom class to style the bubble
+          })
+            .setLngLat([location.lng, location.lat])
+            .setHTML(`<p>${location.city}, ${location.country}</p>`) // Display city and country
+            .addTo(map);
+        });
+
+        // Remove popup and reset size on mouse leave
+        markerElement.addEventListener("mouseleave", () => {
+          markerElement.style.width = "5px"; // Shrink on leave
+          markerElement.style.height = "5px";
+          markerElement.style.boxShadow = "0 0 2px rgba(0, 0, 0, 0.3)"; // Remove glow
+
+          if (hoverPopup) {
+            hoverPopup.remove(); // Hide popup
+            hoverPopup = null; // Clear reference
+          }
+        });
       });
 
       // Center the globe on the new location if globe view is active
@@ -109,7 +139,7 @@ const MapContainer = ({ isGlobeView, locations, centerOnLocation }) => {
         });
       }
     }
-  }, [locations, isGlobeView, centerOnLocation]);
+  }, [locations, isGlobeView, centerOnLocation, isUserAdded]);
 
   return (
     <div

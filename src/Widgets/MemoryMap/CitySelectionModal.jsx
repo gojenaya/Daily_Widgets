@@ -11,17 +11,23 @@ const CitySelectionModal = ({ onClose, onSelectCity }) => {
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const inputRef = useRef(null);
   const modalRef = useRef(null);
+  const dropdownRef = useRef(null);
 
-  // Close dropdown on clicking outside the input or dropdown
+  // Close modal and dropdown on clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
         modalRef.current &&
-        !modalRef.current.contains(event.target) &&
-        inputRef.current &&
-        !inputRef.current.contains(event.target)
+        !modalRef.current.contains(event.target) // If clicked outside the modal
       ) {
-        setDropdownVisible(false);
+        onClose(); // Close the modal
+      } else if (
+        inputRef.current &&
+        !inputRef.current.contains(event.target) && // If clicked outside the input field
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target) // And outside the dropdown
+      ) {
+        setDropdownVisible(false); // Close the dropdown
       }
     };
 
@@ -29,7 +35,7 @@ const CitySelectionModal = ({ onClose, onSelectCity }) => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [onClose]);
 
   // Fetch city and country suggestions from the Mapbox API
   const fetchCities = async (search) => {
@@ -39,7 +45,6 @@ const CitySelectionModal = ({ onClose, onSelectCity }) => {
     }
 
     try {
-      // Fetch cities from Mapbox API with a limit of 20 results
       const response = await fetch(
         `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
           search
@@ -47,7 +52,6 @@ const CitySelectionModal = ({ onClose, onSelectCity }) => {
       );
       const data = await response.json();
 
-      // Filter the results to show cities with both city and country
       const filteredCities = data.features
         .map((feature) => {
           const placeNameParts = feature.place_name.split(", ");
@@ -60,11 +64,9 @@ const CitySelectionModal = ({ onClose, onSelectCity }) => {
             center: feature.center,
           };
         })
-        // Only show cities that start with the search term, case-insensitive
         .filter((place) =>
           place.city.toLowerCase().startsWith(search.toLowerCase())
         )
-        // Sort cities alphabetically by city name
         .sort((a, b) => a.city.localeCompare(b.city));
 
       setCities(filteredCities);
@@ -73,36 +75,33 @@ const CitySelectionModal = ({ onClose, onSelectCity }) => {
     }
   };
 
-  // Handle input change
   useEffect(() => {
     if (searchTerm) {
-      fetchCities(searchTerm); // Fetch cities when typing
-      setDropdownVisible(true); // Show dropdown when typing
+      fetchCities(searchTerm);
+      setDropdownVisible(true);
     } else {
       setCities([]);
-      setDropdownVisible(false); // Hide dropdown when input is cleared
+      setDropdownVisible(false);
     }
   }, [searchTerm]);
 
-  // Handle city selection
   const handleCitySelect = (city) => {
     setSelectedCity(city);
-    setSearchTerm(`${city.city}, ${city.country}`); // Show selected city and country in input
-    setDropdownVisible(false); // Hide the dropdown after selection
+    setSearchTerm(`${city.city}, ${city.country}`);
+    setDropdownVisible(false);
   };
 
-  // Handle adding city pin
   const handleAddPin = () => {
     if (selectedCity) {
-      onSelectCity(selectedCity); // Pass the city and country data to parent component
-      onClose(); // Close the modal after the city is added
+      onSelectCity(selectedCity);
+      onClose();
     }
   };
 
   return (
     <div className="fixed inset-0 flex justify-center items-center">
       <div
-        className="bg-gray-100 rounded-lg shadow-lg p-6 w-96 relative"
+        className="bg-gray-100 rounded-2xl shadow-lg p-6 w-96 relative"
         ref={modalRef}
       >
         <h2 className="text-lg font-bold mb-4 text-gray-800">
@@ -113,15 +112,15 @@ const CitySelectionModal = ({ onClose, onSelectCity }) => {
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value);
-            setSelectedCity(null); // Reset selected city if typing continues
+            setSelectedCity(null);
           }}
           ref={inputRef}
           className="border border-gray-300 rounded p-2 w-full mb-2 bg-gray-200 text-gray-800"
           placeholder="Enter city name..."
         />
-        {/* Dropdown for city list */}
         {dropdownVisible && cities.length > 0 && (
           <ul
+            ref={dropdownRef}
             className="absolute w-full max-h-40 bg-gray-200 border border-gray-300 rounded mt-1 overflow-y-auto z-10 custom-scrollbar"
             style={{
               width: inputRef.current ? inputRef.current.offsetWidth : "100%",
@@ -139,22 +138,20 @@ const CitySelectionModal = ({ onClose, onSelectCity }) => {
           </ul>
         )}
 
-        {/* Show 'Add' button if a city is selected */}
-        {selectedCity && (
+        {/* Flexbox for buttons */}
+        <div className="flex justify-between gap-5 mt-4 w-full z-50">
           <button
-            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg"
+            className={`flex-1 px-4 py-2 border-2 rounded-lg ${
+              selectedCity
+                ? "bg-map-blue text-white "
+                : "bg-gray-100 border-map-lightgrey text-map-lightgrey cursor-not-allowed"
+            }`}
             onClick={handleAddPin}
+            disabled={!selectedCity} // Disable if no city is selected
           >
-            Add {selectedCity.city}
+            Add Pin
           </button>
-        )}
-
-        <button
-          className="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg"
-          onClick={onClose}
-        >
-          Cancel
-        </button>
+        </div>
       </div>
     </div>
   );
