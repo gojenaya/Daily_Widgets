@@ -118,8 +118,8 @@ const MapContainer = ({
 
         // Remove popup and reset size on mouse leave
         markerElement.addEventListener("mouseleave", () => {
-          markerElement.style.width = "5px"; // Shrink on leave
-          markerElement.style.height = "5px";
+          markerElement.style.width = "7px"; // Shrink on leave
+          markerElement.style.height = "7px";
           markerElement.style.boxShadow = "0 0 2px rgba(0, 0, 0, 0.3)"; // Remove glow
 
           if (hoverPopup) {
