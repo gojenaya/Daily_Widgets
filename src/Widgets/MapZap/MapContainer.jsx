@@ -94,8 +94,8 @@ const MapContainer = ({
 
           // After 3 seconds, shrink the marker and let the popup fade out
           setTimeout(() => {
-            markerElement.style.width = "5px"; // Return to normal size
-            markerElement.style.height = "5px";
+            markerElement.style.width = "7px"; // Return to normal size
+            markerElement.style.height = "7px";
           }, 3000);
         }
 
