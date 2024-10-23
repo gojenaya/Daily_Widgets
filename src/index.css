@@ -46,6 +46,11 @@ html {
   cursor: url("./assets/MemoryMap/Arrow.svg"), auto; /* Replace with your custom cursor */
 }
 
+/* For markers or any specific elements (if needed) */
+.custom-marker {
+  cursor: pointer;
+}
+
 /* Optionally for other specific elements like buttons or links */
 button,
 a {
