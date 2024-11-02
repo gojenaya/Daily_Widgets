@@ -1,7 +1,7 @@
 import { useState } from "react";
 import MapZap from "./Widgets/MapZap/MapZap";
 import CheerChomp from "./Widgets/CheerChomp/CheerChomp";
-import StepsAnimated from "./Components/StepsAnimated/steps-animation/StepsAnimated";
+import StepsAnimated from "./Components/StepsAnimated/StepsAnimated";
 import "./App.css";
 
 function App() {
