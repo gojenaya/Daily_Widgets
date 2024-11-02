@@ -12,6 +12,7 @@
   "dependencies": {
     "@mapbox/mapbox-sdk": "^0.16.1",
     "framer-motion": "^11.11.9",
+    "gsap": "^3.12.5",
     "leaflet": "^1.9.4",
     "mapbox-gl": "^3.7.0",
     "react": "^18.3.1",
